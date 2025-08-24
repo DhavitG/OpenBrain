@@ -4,18 +4,47 @@ import jwt from "jsonwebtoken";
 import { ContentModel, UserModel } from "./db.js";
 import { JWT_PASSWORD } from "./config.js";
 import { userMiddleware } from "./middleware.js";
+import { z } from "zod";
+import bcrypt from "bcrypt";
 
 const app = express();
 
 app.use(express.json());
 
 app.post("/api/v1/signup", async (req, res) => {
-  const { username, password } = req.body;
+  const requiredBody = z.object({
+    username: z.string().min(3).max(30),
+    password: z
+      .string()
+      .min(3, "Password must be at least 3 characters long")
+      .max(30, "Password cannot exceed 30 characters")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/\d/, "Password must contain at least one number")
+      .regex(
+        /[@$!%*?&]/,
+        "Password must contain at least one special character (@$!%*?&)"
+      ),
+  });
+
+  const parsedDataWithSuccess = requiredBody.safeParse(req.body);
+
+  if (!parsedDataWithSuccess.success) {
+    res.status(400).json({
+      message: "Incorrect Format",
+      error: parsedDataWithSuccess.error,
+    });
+    return;
+  }
+
+  const { username, password } = parsedDataWithSuccess.data;
 
   try {
+    const hashedPassword = await bcrypt.hash(password, 5);
+
     await UserModel.create({
       username: username,
-      password: password,
+      password: hashedPassword,
     });
 
     res.json({
@@ -31,24 +60,28 @@ app.post("/api/v1/signup", async (req, res) => {
 app.post("/api/v1/signin", async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ message: "Missing username or password" });
+  }
+
   const existingUser = await UserModel.findOne({
     username,
-    password,
   });
 
-  if (existingUser) {
-    const token = jwt.sign(
-      {
-        id: existingUser._id,
-      },
-      JWT_PASSWORD
-    );
-    res.json({ token });
-  } else {
-    res.status(403).json({
-      message: "Incorrect credentials",
-    });
+  const passwordMatch =
+    existingUser && (await bcrypt.compare(password, existingUser.password));
+
+  if (!existingUser || !passwordMatch) {
+    return res.status(403).json({ message: "Incorrect credentials" });
   }
+
+  const token = jwt.sign(
+    {
+      id: existingUser._id,
+    },
+    JWT_PASSWORD
+  );
+  res.json({ token });
 });
 
 app.post("/api/v1/content", userMiddleware, async (req, res) => {

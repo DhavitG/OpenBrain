@@ -1,8 +1,10 @@
 import mongoose, { model, Model, Schema } from "mongoose";
+import dotenv from "dotenv";
 
-mongoose.connect(
-  "mongodb+srv://dhavitg:ZRFpS2dtZt!GSDV@cluster0.rhpde.mongodb.net/OpenBrain"
-);
+dotenv.config();
+const mongoUri = process.env.MONGO_URI as string;
+
+mongoose.connect(mongoUri);
 
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
