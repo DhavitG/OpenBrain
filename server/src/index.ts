@@ -85,31 +85,62 @@ app.post("/api/v1/signin", async (req, res) => {
 });
 
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
-  const { link, type } = req.body;
-  await ContentModel.create({
-    link,
-    type,
-    userId: req.userId,
-    tags: [],
-  });
+  try {
+    const { link, type } = req.body;
 
-  return res.json({
-    message: "Content Added",
-  });
+    if (!link || !type) {
+      return res.status(400).json({ error: "Link and type are required" });
+    }
+
+    await ContentModel.create({
+      link,
+      type,
+      userId: req.userId,
+      tags: [],
+    });
+
+    return res.status(201).json({
+      message: "Content Added",
+    });
+  } catch (e) {
+    console.error("Error adding content: " + (e as Error).message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 app.get("/api/v1/content", userMiddleware, async (req, res) => {
-  const userId = req.userId;
-  const content = await ContentModel.find({
-    userId: userId,
-  }).populate("userId", "username");
+  try {
+    const userId = req.userId;
+    const content = await ContentModel.find({
+      userId: userId,
+    }).populate("userId", "username");
 
-  res.json({ content });
+    res.json({ content });
+  } catch (e) {
+    console.error("Error fetching content: " + (e as Error).message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
-app.delete("/api/v1/content", (req, res) => {});
+app.delete("/api/v1/content", userMiddleware, async (req, res) => {
+  try {
+    const { contentId } = req.body;
 
-app.post("/api/v1/brain/share", (req, res) => {});
+    if (!contentId) {
+      return res.status(400).json({ error: "contentId missing" });
+    }
+
+    await ContentModel.deleteMany({
+      _id: contentId,
+      userId: req.userId,
+    });
+  } catch (e) {
+    console.error("Couldn't delete: " + (e as Error).message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/api/v1/brain/share", userMiddleware, (req, res) => {});
 
 app.get("/api/v1/brain/:shareLink", (req, res) => {});
 
