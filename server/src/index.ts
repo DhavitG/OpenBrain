@@ -1,11 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import { ContentModel, UserModel } from "./db.js";
+import { ContentModel, UserModel, LinkModel } from "./db.js";
 import { JWT_PASSWORD } from "./config.js";
 import { userMiddleware } from "./middleware.js";
-import { z } from "zod";
+import { hash, z } from "zod";
 import bcrypt from "bcrypt";
+import { random } from "./utils.js";
 
 const app = express();
 
@@ -86,7 +87,7 @@ app.post("/api/v1/signin", async (req, res) => {
 
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
   try {
-    const { link, type } = req.body;
+    const { link, type, title } = req.body;
 
     if (!link || !type) {
       return res.status(400).json({ error: "Link and type are required" });
@@ -95,6 +96,7 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
     await ContentModel.create({
       link,
       type,
+      title,
       userId: req.userId,
       tags: [],
     });
@@ -140,8 +142,60 @@ app.delete("/api/v1/content", userMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/v1/brain/share", userMiddleware, (req, res) => {});
+app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
+  const { share } = req.body;
 
-app.get("/api/v1/brain/:shareLink", (req, res) => {});
+  try {
+    if (share) {
+      const hash = random(10);
+      await LinkModel.create({
+        userId: req.userId,
+        hash,
+      });
+      return res.json({ message: "The link is /share/" + hash });
+    } else {
+      await LinkModel.deleteOne({ userId: req.userId });
+      return res.json({ message: "Removed Link" });
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: (e as Error).message });
+  }
+});
+
+app.get("/api/v1/brain/:shareLink", async (req, res) => {
+  const hash = req.params.shareLink;
+
+  const link = await LinkModel.findOne({
+    hash,
+  });
+
+  if (!link) {
+    res.status(404).json({
+      message: "Incorrect link",
+    });
+    return;
+  }
+
+  const content = await ContentModel.find({
+    userId: link.userId,
+  });
+
+  const user = await UserModel.findOne({
+    _id: link.userId,
+  });
+
+  if (!user) {
+    res.status(404).json({
+      message: "User doesn't exist",
+    });
+    return;
+  }
+
+  res.json({
+    username: user.username,
+    content: content,
+  });
+});
 
 app.listen(3000);
