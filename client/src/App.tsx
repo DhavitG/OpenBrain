@@ -1,20 +1,21 @@
 import Button from "./components/Button";
 import PlusIcon from "./icons/PlusIcon";
+import ShareIcon from "./icons/ShareIcon";
 
 function App() {
   return (
-    <div>
+    <div className="flex gap-2">
       <Button
-        startIcon={<PlusIcon size="md" />}
+        startIcon={<PlusIcon />}
         variant="primary"
-        text="Add"
+        text="Add content"
         size={"md"}
         onClick={() => {}}
       />
       <Button
-        startIcon={<PlusIcon size="md" />}
+        startIcon={<ShareIcon />}
         variant="secondary"
-        text="Share"
+        text="Share Brain"
         size={"md"}
         onClick={() => {}}
       />

@@ -21,7 +21,7 @@ const sizeStyles = {
   lg: "py-4 px-6",
 };
 
-const defaultStyles = "rounded-md flex";
+const defaultStyles = "rounded-md font-light flex";
 
 function Button(props: ButtonProps) {
   return (
