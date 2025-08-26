@@ -29,6 +29,7 @@ function Button(props: ButtonProps) {
       className={`${variantStyles[props.variant]} ${defaultStyles} ${
         sizeStyles[props.size]
       } cursor-pointer `}
+      onClick={props.onClick}
     >
       <div className="flex items-center">
         {props.startIcon ? <div className="pr-2">{props.startIcon}</div> : null}{" "}
