@@ -1,0 +1,23 @@
+import LogoIcon from "../icons/LogoIcon";
+import TwitterIcon from "../icons/TwitterIcon";
+import YoutubeIcon from "../icons/YoutubeIcon";
+import SidebarItem from "./SidebarItem";
+
+function Sidebar() {
+  return (
+    <div className="h-screen bg-white border-r w-72 fixed left-0 top-0 pl-6 flex flex-col cursor-pointer">
+      <div className="flex text-2xl pt-8 items-center">
+        <div className="pr-2 text-purple-600">
+          <LogoIcon />
+        </div>
+        OpenBrain
+      </div>
+      <div className="pt-8 pl-4">
+        <SidebarItem text="Twitter" icon={<TwitterIcon />} />
+        <SidebarItem text="Youtube" icon={<YoutubeIcon />} />
+      </div>
+    </div>
+  );
+}
+
+export default Sidebar;
