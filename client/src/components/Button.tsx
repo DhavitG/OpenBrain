@@ -8,6 +8,8 @@ interface ButtonProps {
   startIcon?: ReactElement;
   endIcon?: ReactElement;
   onClick: () => void;
+  fullWidth?: boolean;
+  loading?: boolean;
 }
 
 const variantStyles = {
@@ -28,7 +30,9 @@ function Button(props: ButtonProps) {
     <button
       className={`${variantStyles[props.variant]} ${defaultStyles} ${
         sizeStyles[props.size]
-      } cursor-pointer `}
+      } cursor-pointer ${
+        props.fullWidth ? "w-full flex justify-center items-center" : ""
+      } ${props.loading ? "opacity-45" : ""}`}
       onClick={props.onClick}
     >
       <div className="flex items-center">
