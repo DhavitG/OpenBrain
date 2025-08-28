@@ -1,19 +1,40 @@
+import axios from "axios";
+import DeleteIcon from "../icons/DeleteIcon";
+import DocumentIcon from "../icons/DocumentIcon";
 import ShareIcon from "../icons/ShareIcon";
+import { BACKEND_URL } from "../config";
 
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube";
+  _id: string;
 }
 
-const Card = ({ title, link, type }: CardProps) => {
+const Card = ({ title, link, type, _id }: CardProps) => {
+  async function handleDelete() {
+    try {
+      const contentId = _id;
+
+      await axios.delete(`${BACKEND_URL}/api/v1/content`, {
+        data: { contentId },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+    } catch (e) {
+      console.error(e as Error);
+      alert("Couldn't delete this memory.");
+    }
+  }
+
   return (
     <div>
       <div className="bg-white rounded-md border-gray-200 border p-4 max-w-72 min-h-48">
         <div className="flex justify-between">
           <div className="flex items-center text-md">
-            <div className="text-gray-500 pr-2">
-              <ShareIcon />
+            <div className="text-gray-500 pr-3">
+              <DocumentIcon size="4" />
             </div>
             {title}
           </div>
@@ -23,8 +44,8 @@ const Card = ({ title, link, type }: CardProps) => {
                 <ShareIcon />
               </a>
             </div>
-            <div className="text-gray-500">
-              <ShareIcon />
+            <div className="text-gray-500 pl-1" onClick={handleDelete}>
+              <DeleteIcon />
             </div>
           </div>
         </div>
