@@ -3,10 +3,12 @@ import axios from "axios";
 import Button from "../components/Button";
 import { Input } from "../components/Input";
 import { BACKEND_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   async function handleSignUp() {
     try {
@@ -26,6 +28,7 @@ function Signup() {
       }
 
       if (passwordRef.current?.value) passwordRef.current.value = "";
+      navigate("/signin");
     } catch (e) {
       alert("Signup failed. Username or password is short/incorrect.");
       console.error((e as Error).message);
@@ -35,6 +38,7 @@ function Signup() {
   return (
     <div className="h-screen w-screen bg-gray-200 flex justify-center items-center">
       <div className="bg-white border-gray-800 min-w-48 p-8 rounded-xl">
+        <h1 className="font-bold flex justify-center">Sign Up</h1>
         <Input ref={usernameRef} placeholder="Username" />
         <Input ref={passwordRef} placeholder="Password" />
 
