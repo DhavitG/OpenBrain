@@ -13,7 +13,14 @@ const UserSchema = new Schema({
 
 export const UserModel = model("User", UserSchema);
 
-const contentTypes = ["image", "video", "article", "audio"];
+const contentTypes = [
+  "image",
+  "video",
+  "article",
+  "audio",
+  "youtube",
+  "twitter",
+];
 
 const ContentSchema = new Schema({
   link: { type: String, required: true },

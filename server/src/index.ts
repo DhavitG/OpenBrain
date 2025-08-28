@@ -149,12 +149,16 @@ app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
 
   try {
     if (share) {
+      const existing = await LinkModel.findOne({ userId: req.userId });
+      if (existing) {
+        return res.json({ hash: existing.hash });
+      }
       const hash = random(10);
       await LinkModel.create({
         userId: req.userId,
         hash,
       });
-      return res.json({ message: "The link is /share/" + hash });
+      return res.json({ hash });
     } else {
       await LinkModel.deleteOne({ userId: req.userId });
       return res.json({ message: "Removed Link" });
