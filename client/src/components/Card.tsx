@@ -1,32 +1,38 @@
-import axios from "axios";
 import DeleteIcon from "../icons/DeleteIcon";
 import DocumentIcon from "../icons/DocumentIcon";
 import ShareIcon from "../icons/ShareIcon";
-import { BACKEND_URL } from "../config";
 
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube";
   _id: string;
+  onDelete?: (id: string) => void;
 }
 
-const Card = ({ title, link, type, _id }: CardProps) => {
+const Card = ({ title, link, type, _id, onDelete }: CardProps) => {
   async function handleDelete() {
     try {
-      const contentId = _id;
+      if (!onDelete) {
+        return;
+      }
 
-      await axios.delete(`${BACKEND_URL}/api/v1/content`, {
-        data: { contentId },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      onDelete?.(_id);
     } catch (e) {
       console.error(e as Error);
       alert("Couldn't delete this memory.");
     }
   }
+
+  const getYouTubeEmbedUrl = (url: string): string => {
+    try {
+      const embedUrl = url.replace("watch?v=", "embed/");
+      return embedUrl.split("&")[0];
+    } catch (error) {
+      console.error("Error parsing YouTube URL:", error);
+      return url;
+    }
+  };
 
   return (
     <div>
@@ -44,7 +50,7 @@ const Card = ({ title, link, type, _id }: CardProps) => {
                 <ShareIcon />
               </a>
             </div>
-            <div className="text-gray-500 pl-1" onClick={handleDelete}>
+            <div className="text-red-500 pl-1" onClick={handleDelete}>
               <DeleteIcon />
             </div>
           </div>
@@ -54,7 +60,7 @@ const Card = ({ title, link, type, _id }: CardProps) => {
           {type === "youtube" && (
             <iframe
               className="w-full"
-              src={link.replace("watch", "embed").replace("?v=", "/")}
+              src={getYouTubeEmbedUrl(link)}
               title="YouTube video player"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

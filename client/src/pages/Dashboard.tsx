@@ -11,7 +11,28 @@ import { BACKEND_URL } from "../config";
 
 function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
-  const contents = useContent();
+  const [contents, setContents] = useContent();
+
+  const handleDelete = async (id: string) => {
+    try {
+      setContents((prev) => {
+        const updated = prev.filter((item) => item._id !== id);
+        return updated;
+      });
+
+      await axios.delete(`${BACKEND_URL}/api/v1/content`, {
+        data: { contentId: id },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete content. Please try again.");
+
+      window.location.reload();
+    }
+  };
   return (
     <div>
       <Sidebar />
@@ -64,7 +85,14 @@ function Dashboard() {
 
         <div className="flex flex-wrap gap-4 p-4">
           {contents.map(({ type, title, link, _id }) => (
-            <Card key={_id} title={title} type={type} link={link} _id={_id} />
+            <Card
+              key={_id}
+              title={title}
+              type={type}
+              link={link}
+              _id={_id}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       </div>

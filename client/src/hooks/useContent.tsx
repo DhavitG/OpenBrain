@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../config";
 
 function useContent() {
-  const [contents, setContents] = useState([]);
+  const [contents, setContents] = useState<any[]>([]);
 
   useEffect(() => {
     axios
@@ -16,7 +16,7 @@ function useContent() {
         setContents(response.data.content);
       });
   }, []);
-  return contents;
+  return [contents, setContents] as const;
 }
 
 export default useContent;
