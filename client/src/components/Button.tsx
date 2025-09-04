@@ -10,6 +10,7 @@ interface ButtonProps {
   onClick: () => void;
   fullWidth?: boolean;
   loading?: boolean;
+  className?: string;
 }
 
 const variantStyles = {
@@ -28,11 +29,11 @@ const defaultStyles = "rounded-md font-light flex";
 function Button(props: ButtonProps) {
   return (
     <button
-      className={`${variantStyles[props.variant]} ${defaultStyles} ${
+      className={` ${variantStyles[props.variant]} ${defaultStyles} ${
         sizeStyles[props.size]
       } cursor-pointer ${
         props.fullWidth ? "w-full flex justify-center items-center" : ""
-      } ${props.loading ? "opacity-45" : ""}`}
+      } ${props.loading ? "opacity-45" : ""} ${props.className ?? ""}`}
       onClick={props.onClick}
     >
       <div className="flex items-center">
