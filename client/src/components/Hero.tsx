@@ -18,8 +18,8 @@ function Hero() {
         <h1 className="pl-2 font-bold text-3xl">OpenBrain</h1>
       </div>
 
-      {/* Hero Heading */}
-      <h2 className="mt-10 text-7xl font-bold text-center leading-tight">
+      {/* Heading */}
+      <h2 className="mt-8 text-7xl font-bold text-center leading-tight">
         Your Digital
         <span className="block text-center text-purple-600 pl-1">
           Second Brain
@@ -37,7 +37,7 @@ function Hero() {
           variant="primary"
           text="Start Building Your Brain ->"
           onClick={() => {
-            navigate("/signup");
+            navigate("/signin");
           }}
           size="md"
           className="hover:opacity-80"
